@@ -1,0 +1,1 @@
+default['unix-users']['roles'] = [ 'admin' ]
