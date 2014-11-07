@@ -1,0 +1,1 @@
+ChefSpec test cookbook

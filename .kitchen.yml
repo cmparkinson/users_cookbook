@@ -11,5 +11,5 @@ platforms:
 suites:
   - name: default
     run_list:
-      - recipe[unix-users::default]
+      - recipe[unix_users::default]
     attributes:

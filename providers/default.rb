@@ -20,7 +20,7 @@ def users_to_add
     role_item = data_bag_item(new_resource.roles_data_bag, r)
     fail "Item #{r} does not exist in role data bag #{new_resource.roles_data_bag}" unless role_item
     
-    users |= role_item.users
+    users |= role_item['users']
   end
 
   users
@@ -30,7 +30,7 @@ def existing_managed_users
   users = Array.new
   
   # Get a list of all the users on the system
-  Etc.passwd {|u| users << u}
+  Etc.passwd {|u| users << u.name }
 
   # Intersect the existing users with the data bag containing all users
   users & data_bag(new_resource.user_data_bag)
@@ -41,14 +41,14 @@ action :create do
     Chef::Log.warn("This recipe uses data bag searches.  Chef Solo doesn't support searching unless the chef-solo-search cookbook is installed.")
   else
     # Iterate through the list of users that should exist on this node
-    users_to_add(new_resource.roles).each do |username|
+    users_to_add.each do |username|
       u = data_bag_item(new_resource.user_data_bag, username)
       
       # Create the user's group if it doesn't already exist, otherwise the user creation block will fail
-      if u['gid'] and u['gid'].kind_of?(Numeric)
-        group u['id'] do
-          gid u['gid']
-        end
+      
+      group u['id'] do
+        gid u['gid']
+        only_if { u['gid'] and u['gid'].kind_of?(Numeric) }
       end
 
       # Set home_basedir based on platform_family
@@ -91,7 +91,7 @@ action :create do
         template "#{home_dir}/.ssh/authorized_keys" do
           source 'authorized_keys.erb'
           cookbook new_resource.cookbook
-          owner u['uid']
+          owner u['id']
           mode '0600'
           variables :ssh_keys => u['ssh_keys']
         end
@@ -120,9 +120,9 @@ action :remove do
     # Subtract the users that are supposed to be on the node
     users -= users_to_add
 
-    # Remove the remaining users from the node
+    # Remove the users still in the array from the node
     users.each do |u|
-      user u['id'] do
+      user u do
         action :remove
       end
     end
