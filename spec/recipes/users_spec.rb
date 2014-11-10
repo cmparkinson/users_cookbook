@@ -8,7 +8,7 @@ def get_passwd_user(user, list)
   raise ArgumentError
 end
 
-describe 'unix_users_test::users_test' do
+describe 'unix_users_test::default' do
   let(:chef_run) do
     ChefSpec::ServerRunner.new(
         step_into: ['unix_users'],
