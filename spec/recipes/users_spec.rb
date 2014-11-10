@@ -1,5 +1,13 @@
 require 'spec_helper'
 
+def get_passwd_user(user, list)
+  list.each do |u|
+    return u if user == u.name
+  end
+
+  raise ArgumentError
+end
+
 describe 'unix_users_test::users_test' do
   let(:chef_run) do
     ChefSpec::ServerRunner.new(
@@ -36,6 +44,10 @@ describe 'unix_users_test::users_test' do
         },
         'usernotinrole' => {
           id: 'usernotinrole'
+        },
+        'existinguser1' => {
+          id: 'existinguser1',
+          ssh_keys: ['AABBCC']
         }
       })
 
@@ -46,7 +58,7 @@ describe 'unix_users_test::users_test' do
         },
         'webmaster' => {
           id: 'webmaster',
-          users: [ 'webmaster1' ]
+          users: [ 'webmaster1', 'existinguser1' ]
         },
         'unusedrole' => {
           id: 'unusedrole',
@@ -58,7 +70,7 @@ describe 'unix_users_test::users_test' do
 
   # Create a list of /etc/passwd users
   let(:passwd_users) do
-    users = [ 'root', 'user1', 'user2', 'usernotinrole' ]
+    users = [ 'root', 'user1', 'user2', 'usernotinrole', 'existinguser1' ]
     mock_passwd = Struct.new(:name)
     passwd = []
 
@@ -67,10 +79,14 @@ describe 'unix_users_test::users_test' do
     passwd
   end
 
-  # Stub the Etc.passwd call made by the provider
+  # Stub the Etc.passwd and Etc.getpwnam calls made by the provider
   before do
     allow(Etc).to receive(:passwd) do |&block|
       passwd_users.each { |u| block.call(u) }
+    end
+
+    allow(Etc).to receive(:getpwnam) do |u|
+      get_passwd_user(u, passwd_users)
     end
   end
 
@@ -123,8 +139,17 @@ describe 'unix_users_test::users_test' do
         .with_content("AABBCCDDEEFF\nGGHHIIJJKKLL")
     end
 
-    it 'clears passwords when SSH keys are present' do
+    it 'clears passwords for new users with SSH keys' do
+      resource = chef_run.user('adminuser1')
+      expect(resource).to notify('unix_users_clear_password[adminuser1]')
       
+      resource = chef_run.user('adminuser2')
+      expect(resource).to_not notify('unix_users_clear_password[adminuser2]')
+    end
+
+    it 'does not clear passwords for existing users' do
+      resource = chef_run.user('existinguser1')
+      expect(resource).not_to notify('unix_users_clear_password[existinguser1]')
     end
   end
 end

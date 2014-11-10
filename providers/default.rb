@@ -28,6 +28,15 @@ def users_to_add
   users
 end
 
+def user_exists?(user)
+  begin
+    Etc.getpwnam(user)
+    true
+  rescue ArgumentError
+    false
+  end
+end
+
 def existing_managed_users
   users = Array.new
   
@@ -68,12 +77,12 @@ action :create do
       end      
 
       ssh_keys_present = u['ssh_keys'].is_a?(Array) && u['ssh_keys'].count > 0
+      user_exists = user_exists?(u['id'])
 
-      # Create a resource to clear the user's password if SSH keys are present.
+      # Create a resource to clear the user's password if SSH keys are present and the user doesn't already exist.
       # It will only be run if the user is created.
       unix_users_clear_password u['id'] do
         action :nothing
-        only_if ssh_keys_present
       end
 
       user u['id'] do
@@ -89,7 +98,7 @@ action :create do
         home home_dir
 
         # Clear the new user's password
-        notifies :run, "unix_users_clear_password[#{u['id']}]" if ssh_keys_present
+        notifies :run, "unix_users_clear_password[#{u['id']}]" if new_resource.clear_password && ssh_keys_present && !user_exists
       end
 
       # Create and manage the authorized_keys file
