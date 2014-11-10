@@ -1,3 +1,5 @@
+use_inline_resources
+
 require 'etc'
 
 def whyrun_supported?
@@ -65,6 +67,15 @@ action :create do
         home_dir = "#{home_basedir}/#{u['id']}"
       end      
 
+      ssh_keys_present = u['ssh_keys'].is_a?(Array) && u['ssh_keys'].count > 0
+
+      # Create a resource to clear the user's password if SSH keys are present.
+      # It will only be run if the user is created.
+      unix_users_clear_password u['id'] do
+        action :nothing
+        only_if ssh_keys_present
+      end
+
       user u['id'] do
         action :create
         supports :manage_home => true
@@ -77,7 +88,8 @@ action :create do
 
         home home_dir
 
-        # TODO Add notification to clear password
+        # Clear the new user's password
+        notifies :run, "unix_users_clear_password[#{u['id']}]" if ssh_keys_present
       end
 
       # Create and manage the authorized_keys file

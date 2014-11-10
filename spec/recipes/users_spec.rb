@@ -122,5 +122,9 @@ describe 'unix_users_test::users_test' do
       expect(chef_run).to render_file('/home/adminuser1/.ssh/authorized_keys')
         .with_content("AABBCCDDEEFF\nGGHHIIJJKKLL")
     end
+
+    it 'clears passwords when SSH keys are present' do
+      
+    end
   end
 end

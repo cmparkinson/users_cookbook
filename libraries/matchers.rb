@@ -8,4 +8,8 @@ if defined?(ChefSpec)
   def remove_users(resource_name)
     ChefSpec::Matchers::ResourceMatcher.new(:unix_users, :remove, resource_name)
   end
+
+  def clear_password(resource_name)
+    ChefSpec::Matchers::ResourceMatcher.new(:unix_users_clear_password, :run, resource_name)
+  end
 end
