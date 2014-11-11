@@ -1,0 +1,4 @@
+{
+  "id": "admin1",
+  "ssh_keys": [ "KEY1", "KEY2" ]
+}

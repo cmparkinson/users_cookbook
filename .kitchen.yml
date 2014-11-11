@@ -10,6 +10,7 @@ platforms:
 
 suites:
   - name: default
+    data_bags_path: 'test/integration/default/data_bags/'
     run_list:
-      - recipe[unix_users::default]
+      - recipe[unix_users_test::default]
     attributes:
