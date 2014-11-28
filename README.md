@@ -35,7 +35,7 @@ The users LWRP does all the heavy lifting in this cookbook.
 - `roles`
   - An array of roles to apply to the node.
 - `clear_password`
-  - Clear the passwords of new users and forces them to set one on first login.  This
+  - Clear the passwords of new users and force them to set one on first login.  This
     option is only available if the user has at least one SSH key assigned to them.
   - If you use this option, it is **HIGHLY** recommended that you disable password
     authentication in sshd_config through the `PasswordAuthentication` attribute.
