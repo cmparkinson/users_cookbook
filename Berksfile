@@ -3,4 +3,4 @@ source "https://supermarket.getchef.com"
 
 metadata
 
-cookbook 'unix_users_test', path: 'test/fixtures/cookbooks/unix_users_test'
+cookbook 'users_test', path: 'test/fixtures/cookbooks/users_test'

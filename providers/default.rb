@@ -81,7 +81,7 @@ action :create do
 
       # Create a resource to clear the user's password if SSH keys are present and the user doesn't already exist.
       # It will only be run if the user is created.
-      unix_users_clear_password u['id'] do
+      users_clear_password u['id'] do
         action :nothing
       end
 
@@ -98,7 +98,7 @@ action :create do
         home home_dir
 
         # Clear the new user's password
-        notifies :run, "unix_users_clear_password[#{u['id']}]" if new_resource.clear_password && ssh_keys_present && !user_exists
+        notifies :run, "users_clear_password[#{u['id']}]" if new_resource.clear_password && ssh_keys_present && !user_exists
       end
 
       # Create and manage the authorized_keys file

@@ -8,10 +8,10 @@ def get_passwd_user(user, list)
   raise ArgumentError
 end
 
-describe 'unix_users_test::default' do
+describe 'users_test::default' do
   let(:chef_run) do
     ChefSpec::ServerRunner.new(
-        step_into: ['unix_users'],
+        step_into: ['users'],
         platform: 'ubuntu',
         version: '12.04'
       ) do |node, server|
@@ -51,7 +51,7 @@ describe 'unix_users_test::default' do
         }
       })
 
-      server.create_data_bag('unix_user_roles', {
+      server.create_data_bag('user_roles', {
         'admin' => {
           id: 'admin',
           users: [ 'adminuser1', 'adminuser2' ]
@@ -90,7 +90,7 @@ describe 'unix_users_test::default' do
     end
   end
 
-  context 'Resource "unix_users"' do
+  context 'Resource "users"' do
     it 'manages users from the "users" data bag' do
       expect(chef_run).to create_users('users')
       expect(chef_run).to remove_users('users')
@@ -141,15 +141,15 @@ describe 'unix_users_test::default' do
 
     it 'clears passwords for new users with SSH keys' do
       resource = chef_run.user('adminuser1')
-      expect(resource).to notify('unix_users_clear_password[adminuser1]')
+      expect(resource).to notify('users_clear_password[adminuser1]')
       
       resource = chef_run.user('adminuser2')
-      expect(resource).to_not notify('unix_users_clear_password[adminuser2]')
+      expect(resource).to_not notify('users_clear_password[adminuser2]')
     end
 
     it 'does not clear passwords for existing users' do
       resource = chef_run.user('existinguser1')
-      expect(resource).not_to notify('unix_users_clear_password[existinguser1]')
+      expect(resource).not_to notify('users_clear_password[existinguser1]')
     end
   end
 end
