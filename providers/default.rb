@@ -89,7 +89,6 @@ action :create do
         action :create
         supports :manage_home => true
 
-        comment u['comment']
         uid u['uid'] if u['uid']
         gid u['gid'] if u['gid']
         shell u['shell']
