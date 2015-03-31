@@ -1,6 +1,6 @@
 name             'users_test'
 maintainer       'Chris Parkinson'
-maintainer_email 'cparkinson@michener.ca'
+maintainer_email 'chris@parkie.ca'
 license          'all_rights'
 description      'ChefSpec test cookbook'
 long_description 'ChefSpec test cookbook'
